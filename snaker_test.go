@@ -144,3 +144,27 @@ func BenchmarkSnakeToCamelLower(b *testing.B) {
 	}
 	_ = dummy
 }
+
+var benchCamelToSnake = []string{
+	"",
+	"One",
+	"ONE",
+	"ID",
+	"i",
+	"I",
+	"ThisHasToBeConvertedCorrectlyID",
+	"ThisIDIsFine",
+	"ThisHTTPSConnection",
+	"HelloHTTPSConnectionID",
+	"HTTPSID",
+}
+
+func BenchmarkCamelToSnake(b *testing.B) {
+	var dummy string
+	for i := 0; i < b.N; i++ {
+		for _, in := range benchCamelToSnake {
+			dummy = CamelToSnake(in)
+		}
+	}
+	_ = dummy
+}
