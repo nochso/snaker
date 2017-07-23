@@ -1,6 +1,8 @@
 package snaker
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -111,3 +113,24 @@ var _ = Describe("Snaker", func() {
 		})
 	})
 })
+
+var benchSnakeToCamel = []string{
+	"",
+	"potato_",
+	"this_has_to_be_uppercased",
+	"this_is_an_id",
+	"this_is_an_identifier",
+	"id",
+	"id_me_please",
+	"a_b_c_d_e_f_g_h",
+}
+
+func BenchmarkSnakeToCamel(b *testing.B) {
+	var dummy string
+	for i := 0; i < b.N; i++ {
+		for _, in := range benchSnakeToCamel {
+			dummy = SnakeToCamel(in)
+		}
+	}
+	_ = dummy
+}
