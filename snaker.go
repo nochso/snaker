@@ -5,6 +5,7 @@ package snaker
 import (
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // CamelToSnake converts a given string to snake case
@@ -36,28 +37,22 @@ func CamelToSnake(s string) string {
 }
 
 func snakeToCamel(s string, upperCase bool) string {
-	var result string
-
 	words := strings.Split(s, "_")
 
 	for i, word := range words {
 		if upperCase || i > 0 {
 			if upper := strings.ToUpper(word); commonInitialisms[upper] {
-				result += upper
+				words[i] = upper
 				continue
 			}
 		}
 
 		if (upperCase || i > 0) && len(word) > 0 {
-			w := []rune(word)
-			w[0] = unicode.ToUpper(w[0])
-			result += string(w)
-		} else {
-			result += word
+			r, s := utf8.DecodeRuneInString(word)
+			words[i] = string(unicode.ToUpper(r)) + word[s:]
 		}
 	}
-
-	return result
+	return strings.Join(words, "")
 }
 
 // SnakeToCamel returns a string converted from snake case to uppercase
