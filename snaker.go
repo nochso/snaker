@@ -17,16 +17,18 @@ type S struct {
 var def = NewDefault()
 
 // New returns a new snaker without any initialisms
-func New() *S {
-	return &S{
+func New(initialism ...string) *S {
+	s := &S{
 		initialisms: make(map[string]bool),
 		min:         1<<31 - 1,
 	}
+	s.Add(initialism...)
+	return s
 }
 
 // NewDefault returns a new snaker with common initialisms
 func NewDefault() *S {
-	return New().Add(commonInitialisms...)
+	return New(commonInitialisms...)
 }
 
 // Add an initialism.
