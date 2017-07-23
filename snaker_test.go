@@ -1,6 +1,7 @@
 package snaker
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -156,4 +157,14 @@ func BenchmarkCamelToSnake(b *testing.B) {
 		}
 	}
 	_ = dummy
+}
+
+func ExampleNew() {
+	s := New("ID", "IMDB")
+	fmt.Println(s.CamelToSnake("IMDBID"))
+	fmt.Println(s.SnakeToCamel("imdb_name"))
+
+	// Output:
+	// imdb_id
+	// IMDBName
 }
