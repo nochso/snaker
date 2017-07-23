@@ -9,7 +9,6 @@ import (
 
 // CamelToSnake converts a given string to snake case
 func CamelToSnake(s string) string {
-	var result string
 	var words []string
 	var lastPos int
 	rs := []rune(s)
@@ -33,16 +32,7 @@ func CamelToSnake(s string) string {
 	if s[lastPos:] != "" {
 		words = append(words, s[lastPos:])
 	}
-
-	for k, word := range words {
-		if k > 0 {
-			result += "_"
-		}
-
-		result += strings.ToLower(word)
-	}
-
-	return result
+	return strings.ToLower(strings.Join(words, "_"))
 }
 
 func snakeToCamel(s string, upperCase bool) string {
