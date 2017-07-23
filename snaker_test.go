@@ -134,3 +134,13 @@ func BenchmarkSnakeToCamel(b *testing.B) {
 	}
 	_ = dummy
 }
+
+func BenchmarkSnakeToCamelLower(b *testing.B) {
+	var dummy string
+	for i := 0; i < b.N; i++ {
+		for _, in := range benchSnakeToCamel {
+			dummy = SnakeToCamelLower(in)
+		}
+	}
+	_ = dummy
+}
