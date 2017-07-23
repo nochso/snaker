@@ -8,15 +8,50 @@ import (
 	"unicode/utf8"
 )
 
+// S is a snaker with its own list of initialisms
+type S struct {
+	initialisms map[string]bool
+	min, max    int
+}
+
+var def = NewDefault()
+
+// New returns a new snaker without any initialisms
+func New() *S {
+	return &S{
+		initialisms: make(map[string]bool),
+		min:         1<<31 - 1,
+	}
+}
+
+// NewDefault returns a new snaker with common initialisms
+func NewDefault() *S {
+	return New().Add(commonInitialisms...)
+}
+
+// Add an initialism.
+func (ss *S) Add(initialism ...string) *S {
+	for _, i := range initialism {
+		ss.initialisms[i] = true
+		if len(i) > ss.max {
+			ss.max = len(i)
+		}
+		if len(i) < ss.min {
+			ss.min = len(i)
+		}
+	}
+	return ss
+}
+
 // CamelToSnake converts a given string to snake case
-func CamelToSnake(s string) string {
+func (ss *S) CamelToSnake(s string) string {
 	var words []string
 	var lastPos int
 	rs := []rune(s)
 
 	for i := 0; i < len(rs); i++ {
 		if i > 0 && unicode.IsUpper(rs[i]) {
-			if initialism := startsWithInitialism(s[lastPos:]); initialism != "" {
+			if initialism := ss.startsWithInitialism(s[lastPos:]); initialism != "" {
 				words = append(words, initialism)
 
 				i += len(initialism) - 1
@@ -36,12 +71,34 @@ func CamelToSnake(s string) string {
 	return strings.ToLower(strings.Join(words, "_"))
 }
 
-func snakeToCamel(s string, upperCase bool) string {
+// startsWithInitialism returns the initialism if the given string begins with it
+func (ss *S) startsWithInitialism(s string) string {
+	var initialism string
+	// the longest initialism is 5 char, the shortest 2
+	for i := ss.min - 1; i <= ss.max; i++ {
+		if len(s) > i-1 && ss.initialisms[s[:i]] {
+			initialism = s[:i]
+		}
+	}
+	return initialism
+}
+
+// SnakeToCamel returns a string converted from snake case to uppercase
+func (ss *S) SnakeToCamel(s string) string {
+	return ss.snakeToCamel(s, true)
+}
+
+// SnakeToCamelLower returns a string converted from snake case to lowercase
+func (ss *S) SnakeToCamelLower(s string) string {
+	return ss.snakeToCamel(s, false)
+}
+
+func (ss *S) snakeToCamel(s string, upperCase bool) string {
 	words := strings.Split(s, "_")
 
 	for i, word := range words {
 		if upperCase || i > 0 {
-			if upper := strings.ToUpper(word); commonInitialisms[upper] {
+			if upper := strings.ToUpper(word); ss.initialisms[upper] {
 				words[i] = upper
 				continue
 			}
@@ -55,68 +112,61 @@ func snakeToCamel(s string, upperCase bool) string {
 	return strings.Join(words, "")
 }
 
+// CamelToSnake converts a given string to snake case
+func CamelToSnake(s string) string {
+	return def.CamelToSnake(s)
+}
+
 // SnakeToCamel returns a string converted from snake case to uppercase
 func SnakeToCamel(s string) string {
-	return snakeToCamel(s, true)
+	return def.SnakeToCamel(s)
 }
 
 // SnakeToCamelLower returns a string converted from snake case to lowercase
 func SnakeToCamelLower(s string) string {
-	return snakeToCamel(s, false)
-}
-
-// startsWithInitialism returns the initialism if the given string begins with it
-func startsWithInitialism(s string) string {
-	var initialism string
-	// the longest initialism is 5 char, the shortest 2
-	for i := 1; i <= 5; i++ {
-		if len(s) > i-1 && commonInitialisms[s[:i]] {
-			initialism = s[:i]
-		}
-	}
-	return initialism
+	return def.SnakeToCamelLower(s)
 }
 
 // commonInitialisms, taken from
 // https://github.com/golang/lint/blob/206c0f020eba0f7fbcfbc467a5eb808037df2ed6/lint.go#L731
-var commonInitialisms = map[string]bool{
-	"ACL":   true,
-	"API":   true,
-	"ASCII": true,
-	"CPU":   true,
-	"CSS":   true,
-	"DNS":   true,
-	"EOF":   true,
-	"GUID":  true,
-	"HTML":  true,
-	"HTTP":  true,
-	"HTTPS": true,
-	"ID":    true,
-	"IP":    true,
-	"JSON":  true,
-	"LHS":   true,
-	"OS":    true,
-	"QPS":   true,
-	"RAM":   true,
-	"RHS":   true,
-	"RPC":   true,
-	"SLA":   true,
-	"SMTP":  true,
-	"SQL":   true,
-	"SSH":   true,
-	"TCP":   true,
-	"TLS":   true,
-	"TTL":   true,
-	"UDP":   true,
-	"UI":    true,
-	"UID":   true,
-	"UUID":  true,
-	"URI":   true,
-	"URL":   true,
-	"UTF8":  true,
-	"VM":    true,
-	"XML":   true,
-	"XMPP":  true,
-	"XSRF":  true,
-	"XSS":   true,
+var commonInitialisms = []string{
+	"ACL",
+	"API",
+	"ASCII",
+	"CPU",
+	"CSS",
+	"DNS",
+	"EOF",
+	"GUID",
+	"HTML",
+	"HTTP",
+	"HTTPS",
+	"ID",
+	"IP",
+	"JSON",
+	"LHS",
+	"OS",
+	"QPS",
+	"RAM",
+	"RHS",
+	"RPC",
+	"SLA",
+	"SMTP",
+	"SQL",
+	"SSH",
+	"TCP",
+	"TLS",
+	"TTL",
+	"UDP",
+	"UI",
+	"UID",
+	"UUID",
+	"URI",
+	"URL",
+	"UTF8",
+	"VM",
+	"XML",
+	"XMPP",
+	"XSRF",
+	"XSS",
 }

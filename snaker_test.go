@@ -114,6 +114,114 @@ var _ = Describe("Snaker", func() {
 	})
 })
 
+var _ = Describe("Custom Snaker", func() {
+	Describe("New empty snaker", func() {
+		s := New()
+		Describe("CamelToSnake test", func() {
+			It("should return an empty string on an empty input", func() {
+				Expect(s.CamelToSnake("")).To(Equal(""))
+			})
+
+			It("should work with one word", func() {
+				Expect(s.CamelToSnake("One")).To(Equal("one"))
+			})
+
+			It("should return an uppercase string as seperate words", func() {
+				Expect(s.CamelToSnake("ONE")).To(Equal("o_n_e"))
+			})
+
+			It("should return ID as seperate words just like any other upper case string", func() {
+				Expect(s.CamelToSnake("ID")).To(Equal("i_d"))
+			})
+
+			It("should work with a single lowercase character", func() {
+				Expect(s.CamelToSnake("i")).To(Equal("i"))
+			})
+
+			It("should work with a single uppcase character", func() {
+				Expect(s.CamelToSnake("I")).To(Equal("i"))
+			})
+
+			It("should not convert ID in long string", func() {
+				Expect(s.CamelToSnake("ThisHasToBeConvertedIncorrectlyID")).To(
+					Equal("this_has_to_be_converted_incorrectly_i_d"))
+			})
+
+			It("should not return the text as expected if the initialism is in the middle", func() {
+				Expect(s.CamelToSnake("ThisIDIsNotFine")).To(Equal("this_i_d_is_not_fine"))
+			})
+
+			It("should not work with long initialism", func() {
+				Expect(s.CamelToSnake("ThisHTTPSConnection")).To(Equal("this_h_t_t_p_s_connection"))
+			})
+
+			It("should not work with multi initialisms", func() {
+				Expect(s.CamelToSnake("HelloHTTPSConnectionID")).To(Equal("hello_h_t_t_p_s_connection_i_d"))
+			})
+
+			It("should not work with concat initialisms", func() {
+				Expect(s.CamelToSnake("HTTPSID")).To(Equal("h_t_t_p_s_i_d"))
+			})
+		})
+		Describe("SnakeToCamel test", func() {
+			It("should return an empty string on an empty input", func() {
+				Expect(s.SnakeToCamel("")).To(Equal(""))
+			})
+
+			It("should not blow up on trailing _", func() {
+				Expect(s.SnakeToCamel("potato_")).To(Equal("Potato"))
+			})
+
+			It("should return a snaked text as camel case", func() {
+				Expect(s.SnakeToCamel("this_has_to_be_uppercased")).To(
+					Equal("ThisHasToBeUppercased"))
+			})
+
+			It("should return a snaked text as camel case, including the word ID", func() {
+				Expect(s.SnakeToCamel("this_is_an_id")).To(Equal("ThisIsAnId"))
+			})
+
+			It("should return 'id' not as uppercase", func() {
+				Expect(s.SnakeToCamel("this_is_an_identifier")).To(Equal("ThisIsAnIdentifier"))
+			})
+
+			It("should ignore id", func() {
+				Expect(s.SnakeToCamel("id")).To(Equal("Id"))
+			})
+		})
+		Describe("SnakeToCamelLower test", func() {
+			It("should return an empty string on an empty input", func() {
+				Ω(s.SnakeToCamelLower("")).To(Equal(""))
+			})
+
+			It("should not blow up on trailing _", func() {
+				Ω(s.SnakeToCamelLower("potato_")).To(Equal("potato"))
+			})
+
+			It("should return a snaked text as camel case", func() {
+				Ω(s.SnakeToCamelLower("this_has_to_be_uppercased")).To(
+					Equal("thisHasToBeUppercased"))
+			})
+
+			It("should return a snaked text as camel case, including the word ID", func() {
+				Ω(s.SnakeToCamelLower("this_is_an_id")).To(Equal("thisIsAnId"))
+			})
+
+			It("should return 'id' not as uppercase", func() {
+				Ω(s.SnakeToCamelLower("this_is_an_identifier")).To(Equal("thisIsAnIdentifier"))
+			})
+
+			It("should simply work with id", func() {
+				Ω(s.SnakeToCamelLower("id")).To(Equal("id"))
+			})
+
+			It("should simply work with leading id", func() {
+				Ω(s.SnakeToCamelLower("id_me_please")).To(Equal("idMePlease"))
+			})
+		})
+	})
+})
+
 var benchSnakeToCamel = []string{
 	"",
 	"potato_",
